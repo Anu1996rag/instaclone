@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from .models import UserPost, PostMedia
+from users.serializers import UserProfileViewSerializer
 
 
 class UserPostCreateSerializer(ModelSerializer):
@@ -11,11 +12,26 @@ class UserPostCreateSerializer(ModelSerializer):
 
     class Meta:
         model = UserPost
-        fields = ('caption_text', 'location', 'id', 'is_published', )
+        fields = ('caption_text', 'location', 'id', 'is_published',)
 
 
 class PostMediaCreateSerializer(ModelSerializer):
-
     class Meta:
         model = PostMedia
-        fields = ('media_file', 'sequence_index', 'post', )
+        fields = ('media_file', 'sequence_index', 'post',)
+
+
+class PostMediaViewSerializer(ModelSerializer):
+    class Meta:
+        model = PostMedia
+        exclude = ('post',)
+
+
+class PostFeedSerializer(ModelSerializer):
+    author = UserProfileViewSerializer()
+    media = PostMediaViewSerializer(many=True)
+
+    class Meta:
+        model = UserPost
+        fields = "__all__"
+        include = ('media_file', )
