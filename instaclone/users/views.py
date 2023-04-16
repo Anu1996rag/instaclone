@@ -119,6 +119,7 @@ class UserProfileDetail(APIView):
 
 class UserNetworkEdgeView(mixins.CreateModelMixin,
                           mixins.ListModelMixin,
+                          mixins.DestroyModelMixin,
                           generics.GenericAPIView):
     queryset = NetworkEdge.objects.all()
     serializer_class = NetworkEdgeCreationSerializer
