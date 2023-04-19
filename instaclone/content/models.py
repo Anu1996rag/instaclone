@@ -32,6 +32,9 @@ class PostLikes(TimeStamp):
 
     liked_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="liked_posts")
 
+    class Meta:
+        unique_together = ('post', 'liked_by', )
+
 
 class PostComments(TimeStamp):
 
