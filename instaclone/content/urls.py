@@ -4,6 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register('like', views.PostLikeViewSet)
+router.register('comment', views.PostCommentViewSet)
 
 urlpatterns = [
     path('', views.UserPostCreateFeed.as_view(), name="user_post_view"),

@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from rest_framework.serializers import ModelSerializer
 from rest_framework.exceptions import APIException
-from .models import UserPost, PostMedia, PostLikes
+from .models import UserPost, PostMedia, PostLikes, PostComments
 from users.serializers import UserProfileViewSerializer
 
 
@@ -59,3 +59,21 @@ class PostLikeViewSerializer(ModelSerializer):
     class Meta:
         model = PostLikes
         fields = ('id', 'post', 'liked_by', )
+
+
+class PostCommentCreateSerializer(ModelSerializer):
+    def create(self, validated_data):
+        validated_data["author"] = self.context["current_user"]
+        return PostComments.objects.create(**validated_data)
+
+    class Meta:
+        model = PostComments
+        fields = ('id', 'post', 'text', )
+
+
+class PostCommentViewSerializer(ModelSerializer):
+    author = UserProfileViewSerializer()
+
+    class Meta:
+        model = PostComments
+        fields = ('id', 'post', 'text', 'author', )
