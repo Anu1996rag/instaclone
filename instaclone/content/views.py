@@ -94,10 +94,11 @@ class PostLikeViewSet(mixins.ListModelMixin,
 
         page = self.paginate_queryset(post_likes)
 
-        serializer = self.get_serializer(page, many=True)
-
         if page:
+            serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(post_likes, many=True)
         return Response(serializer.data)
 
 
@@ -124,9 +125,10 @@ class PostCommentViewSet(mixins.CreateModelMixin,
 
         page = self.paginate_queryset(post_comments)
 
-        serializer = self.get_serializer(page, many=True)
-
         if page:
+            serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-        return Response(serializer.data)
 
+        serializer = self.get_serializer(post_comments, many=True)
+
+        return Response(serializer.data)
