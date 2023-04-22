@@ -10,7 +10,7 @@ from .models import UserPost, PostLikes, PostComments
 from .serializers import UserPostCreateSerializer, PostMediaCreateSerializer, \
     PostFeedSerializer, PostLikeCreateSerializer, PostLikeViewSerializer, PostCommentCreateSerializer, \
     PostCommentViewSerializer
-
+from .permissions import IsOwnerOrReadOnly
 
 # Create your views here.
 class UserPostCreateFeed(generics.GenericAPIView,
@@ -106,7 +106,7 @@ class PostCommentViewSet(mixins.CreateModelMixin,
                          mixins.DestroyModelMixin,
                          viewsets.GenericViewSet):
 
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     authentication_classes = [JWTAuthentication, ]
     queryset = PostComments.objects.all()
     serializer_class = PostCommentCreateSerializer
