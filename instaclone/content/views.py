@@ -51,7 +51,7 @@ class UserPostDetailUpdateView(generics.GenericAPIView,
                                mixins.RetrieveModelMixin,
                                mixins.UpdateModelMixin,
                                mixins.DestroyModelMixin):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     authentication_classes = [JWTAuthentication, ]
     serializer_class = UserPostCreateSerializer
     queryset = UserPost.objects.all()
@@ -76,7 +76,7 @@ class PostLikeViewSet(mixins.ListModelMixin,
                       mixins.CreateModelMixin,
                       mixins.DestroyModelMixin,
                       viewsets.GenericViewSet):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     authentication_classes = [JWTAuthentication, ]
     queryset = PostLikes.objects.all()
     serializer_class = PostLikeCreateSerializer
