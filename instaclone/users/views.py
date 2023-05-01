@@ -1,4 +1,5 @@
 from django.http import HttpResponse
+from django.db.models import Count, F
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -9,7 +10,7 @@ from rest_framework.views import APIView
 
 from .serializers import UserCreateSerializer, UserProfileViewSerializer, UserProfileUpdateSerializer
 from .serializers import NetworkEdgeCreationSerializer, NetworkEdgeViewFollowingSerializer, \
-    NetworkEdgeViewFollowerSerializer
+    NetworkEdgeViewFollowerSerializer, UserProfileListViewSerializer
 from .models import UserProfile, NetworkEdge
 
 from rest_framework import generics
@@ -56,9 +57,12 @@ class ListUsers(APIView):
     authentication_classes=[JWTAuthentication]
 
     def get(self, request):
-        users = UserProfile.objects.all()
+        users = UserProfile.objects.all().select_related('user').annotate(
+            follower_count=Count('followers', distinct=True),
+            following_count=Count('following', distinct=True)
+        )
 
-        serialized_data = UserProfileViewSerializer(instance=users, many=True)
+        serialized_data = UserProfileListViewSerializer(instance=users, many=True)
 
         return Response(
             data=serialized_data.data,
@@ -73,7 +77,7 @@ class UserProfileDetail(APIView):
     def get(self, request, pk):
         resp_data = get_default_response()
 
-        user = UserProfile.objects.filter(id=pk).first()
+        user = UserProfile.objects.filter(id=pk).select_related('user').first()
 
         if user:
             serialized_data = UserProfileViewSerializer(instance=user)

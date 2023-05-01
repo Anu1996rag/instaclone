@@ -25,7 +25,7 @@ class UserCreateSerializer(ModelSerializer):
 class UserViewSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'id', )
+        fields = ('first_name', 'last_name', 'username', 'id',)
 
 
 class UserProfileViewSerializer(ModelSerializer):
@@ -45,8 +45,24 @@ class UserProfileViewSerializer(ModelSerializer):
         exclude = ('id', 'is_verified',)
 
 
-class UserProfileUpdateSerializer(ModelSerializer):
+class UserProfileListViewSerializer(ModelSerializer):
+    user = UserViewSerializer()
 
+    following_count = serializers.SerializerMethodField()
+    followers_count = serializers.SerializerMethodField()
+
+    def get_following_count(self, obj):
+        return obj.following_count
+
+    def get_followers_count(self, obj):
+        return obj.follower_count
+
+    class Meta:
+        model = UserProfile
+        exclude = ('id', 'is_verified',)
+
+
+class UserProfileUpdateSerializer(ModelSerializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
 
@@ -67,13 +83,13 @@ class UserProfileUpdateSerializer(ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('first_name', 'last_name', 'bio', 'profile_pic_url', )
+        fields = ('first_name', 'last_name', 'bio', 'profile_pic_url',)
 
 
 class NetworkEdgeCreationSerializer(ModelSerializer):
     class Meta:
         model = NetworkEdge
-        fields = ('from_user', 'to_user', )
+        fields = ('from_user', 'to_user',)
 
 
 class NetworkEdgeViewFollowingSerializer(ModelSerializer):
@@ -81,7 +97,7 @@ class NetworkEdgeViewFollowingSerializer(ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ("from_user", )
+        fields = ("from_user",)
 
 
 class NetworkEdgeViewFollowerSerializer(ModelSerializer):
@@ -89,4 +105,4 @@ class NetworkEdgeViewFollowerSerializer(ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ("to_user", )
+        fields = ("to_user",)
