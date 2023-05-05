@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-dp(cnrbj6!@vdh%+_fr%iq*b3x^@-85qnl62xk*!yf(dyx(s6@'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 # Application definition
@@ -81,11 +82,11 @@ WSGI_APPLICATION = 'instaclone.wsgi.application'
 DATABASES = {
     'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'django',
-       'USER': 'postgres',
-       'PASSWORD': 'test',
-       'HOST': '127.0.0.1',
-       'PORT': '5432',
+       'NAME': os.getenv("POSTGRES_DB_NAME"),
+       'USER': os.getenv("POSTGRES_USER"),
+       'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
+       'HOST': os.getenv("POSTGRES_HOST"),
+       'PORT': os.getenv("POSTGRES_PORT"),
     }
 }
 
