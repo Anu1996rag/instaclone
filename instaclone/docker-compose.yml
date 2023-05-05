@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  db_service:
+    image: postgres:14.3-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=gurudas
+      - POSTGRES_DB=django
+  web:
+    image: instaclone:v1
+    ports:
+      - "8000:8000"
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env
+    depends_on:
+      - db_service
