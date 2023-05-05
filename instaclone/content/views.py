@@ -12,6 +12,7 @@ from .serializers import UserPostCreateSerializer, PostMediaCreateSerializer, \
     PostCommentViewSerializer
 from .permissions import IsOwnerOrReadOnly
 
+
 # Create your views here.
 class UserPostCreateFeed(generics.GenericAPIView,
                          mixins.CreateModelMixin,
@@ -106,7 +107,6 @@ class PostCommentViewSet(mixins.CreateModelMixin,
                          mixins.ListModelMixin,
                          mixins.DestroyModelMixin,
                          viewsets.GenericViewSet):
-
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     authentication_classes = [JWTAuthentication, ]
     queryset = PostComments.objects.all()

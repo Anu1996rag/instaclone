@@ -1,12 +1,11 @@
 from django.http import HttpResponse
 from django.db.models import Count, F
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.views import APIView
 
 from .serializers import UserCreateSerializer, UserProfileViewSerializer, UserProfileUpdateSerializer
 from .serializers import NetworkEdgeCreationSerializer, NetworkEdgeViewFollowingSerializer, \
@@ -15,6 +14,8 @@ from .models import UserProfile, NetworkEdge
 
 from rest_framework import generics
 from rest_framework import mixins
+from rest_framework import viewsets
+
 
 def get_default_response():
     return {
@@ -52,11 +53,12 @@ def create_user(request):
     return Response(resp_data, status=resp_status)
 
 
-class ListUsers(APIView):
-    permission_classes=[IsAuthenticated]
-    authentication_classes=[JWTAuthentication]
+class ListUsers(viewsets.GenericViewSet,
+                mixins.ListModelMixin):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
-    def get(self, request):
+    def list(self, request):
         users = UserProfile.objects.all().select_related('user').annotate(
             follower_count=Count('followers', distinct=True),
             following_count=Count('following', distinct=True)
@@ -70,14 +72,18 @@ class ListUsers(APIView):
         )
 
 
-class UserProfileDetail(APIView):
+class UserProfileDetail(viewsets.GenericViewSet,
+                        mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
+                        mixins.DestroyModelMixin):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    queryset = UserProfile.objects.all()
 
-    def get(self, request, pk):
+    def retrieve(self, request, pk=None):
         resp_data = get_default_response()
 
-        user = UserProfile.objects.filter(id=pk).select_related('user').first()
+        user = self.queryset.filter(id=pk).select_related('user').first()
 
         if user:
             serialized_data = UserProfileViewSerializer(instance=user)
@@ -92,7 +98,7 @@ class UserProfileDetail(APIView):
             status=resp_status
         )
 
-    def post(self, request, pk):
+    def update(self, request, pk):
         resp_data = get_default_response()
 
         user_profile_serializer = UserProfileUpdateSerializer(instance=request.user.profile,
@@ -109,16 +115,6 @@ class UserProfileDetail(APIView):
 
         return Response(data=resp_data["data"],
                         status=resp_status)
-
-    def delete(self, request, pk):
-        user = request.user
-
-        user.delete()
-
-        resp_data = get_default_response()
-        resp_data["data"] = "Requested user deleted successfully."
-
-        return Response(data=resp_data, status=status.HTTP_200_OK)
 
 
 class UserNetworkEdgeView(mixins.CreateModelMixin,
@@ -140,7 +136,7 @@ class UserNetworkEdgeView(mixins.CreateModelMixin,
 
         return self.serializer_class
 
-    def get_queryset(self):
+    def get_queryset(self, *args, **kwargs):
         edge_direction = self.request.query_params.get("direction")
         if edge_direction == "followers":
             return self.queryset.filter(to_user=self.request.user.profile)
