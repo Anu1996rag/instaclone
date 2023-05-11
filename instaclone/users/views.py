@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_yasg.utils import swagger_auto_schema
 
 from .serializers import UserCreateSerializer, UserProfileViewSerializer, UserProfileUpdateSerializer
 from .serializers import NetworkEdgeCreationSerializer, NetworkEdgeViewFollowingSerializer, \
@@ -29,6 +30,7 @@ def index(request):
     return HttpResponse("Congratulations for your first view implementation !!!")
 
 
+@swagger_auto_schema(methods=['post'], request_body=UserCreateSerializer)
 @api_view(['POST'])
 def create_user(request):
     serializer = UserCreateSerializer(data=request.data)
@@ -72,6 +74,7 @@ class ListUsers(viewsets.GenericViewSet,
         )
 
 
+@swagger_auto_schema(request_body=UserProfile)
 class UserProfileDetail(viewsets.GenericViewSet,
                         mixins.RetrieveModelMixin,
                         mixins.UpdateModelMixin,
@@ -98,6 +101,7 @@ class UserProfileDetail(viewsets.GenericViewSet,
             status=resp_status
         )
 
+    @swagger_auto_schema(request_body=UserProfileUpdateSerializer)
     def update(self, request, pk):
         resp_data = get_default_response()
 

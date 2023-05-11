@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_yasg.utils import swagger_auto_schema
 
 from .filters import CurrentUserFollowingFilterBackend, IsPublishedUserFilterBackend
 from .models import UserPost, PostLikes, PostComments
@@ -14,6 +15,7 @@ from .permissions import IsOwnerOrReadOnly
 
 
 # Create your views here.
+
 class UserPostCreateFeed(generics.GenericAPIView,
                          mixins.CreateModelMixin,
                          mixins.ListModelMixin):
@@ -31,6 +33,7 @@ class UserPostCreateFeed(generics.GenericAPIView,
     def get_serializer_context(self):
         return {'current_user': self.request.user.profile}
 
+    @swagger_auto_schema(request_body=UserPostCreateSerializer)
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
@@ -48,6 +51,7 @@ class PostMediaView(generics.GenericAPIView,
         return self.create(request, *args, **kwargs)
 
 
+@swagger_auto_schema(request_body=UserPostCreateSerializer)
 class UserPostDetailUpdateView(generics.GenericAPIView,
                                mixins.RetrieveModelMixin,
                                mixins.UpdateModelMixin,
@@ -73,6 +77,7 @@ class UserPostDetailUpdateView(generics.GenericAPIView,
         return self.destroy(request, *args, **kwargs)
 
 
+@swagger_auto_schema(request_body=PostLikeCreateSerializer)
 class PostLikeViewSet(mixins.ListModelMixin,
                       mixins.CreateModelMixin,
                       mixins.DestroyModelMixin,
@@ -103,6 +108,7 @@ class PostLikeViewSet(mixins.ListModelMixin,
         return Response(serializer.data)
 
 
+@swagger_auto_schema(request_body=PostCommentCreateSerializer)
 class PostCommentViewSet(mixins.CreateModelMixin,
                          mixins.ListModelMixin,
                          mixins.DestroyModelMixin,
